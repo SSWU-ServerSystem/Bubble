@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bubble
+  labels:
+    app: bubble
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: bubble
+  template:
+    metadata:
+      labels:
+        app: bubble
+        tier: bubble
+    spec:
+      containers:
+      - name: bubble
+        image: dockerhubID/이미지명:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+          name: bubble
+        env:
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_HOST
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_USER
+        - name: DB_PW
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PW
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_NAME
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bubble
+  labels:
+    app: bubble
+spec:
+  ports:
+  - port: 80
+    targetPort: 5000
+  selector:
+    app: bubble
+    tier: bubble
+  type: LoadBalancer
